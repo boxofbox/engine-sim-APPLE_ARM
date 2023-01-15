@@ -1,5 +1,4 @@
 # Engine Simulator
-![Alt text](docs/public/screenshots/screenshot_v01.png?raw=true)
 ---
 
 !!!! CURRENTLY IN DEVELOPMENT (WHEN THIS IS GONE IT'S READY TO BUILD)
@@ -15,9 +14,41 @@ This is a real-time internal combustion engine simulation **designed specificall
 
 ## How do I install it?
 
-TBD
+## How do I build it? (Ignore this section if you're not a developer!)
+**Note: this fork is currently only tested for builds on M1 Macs!**
+
+### Step 1 - Clone the repository
+```git clone https://github.com/boxofbox/engine-sim-m1```
+
+### Step 2 - Install Dependencies
+
+```
+brew install cmake
+brew install boost
+brew install bison
+brew install boost
+brew install sse2neon
+brew install sdl2
+brew install sdl2_image
+brew install sdl_sound
+brew install flex
+```
+
+### Step 3 - Build and Run
+From the root directory of the project, run the following commands:
+
+```
+mkdir build
+cd build
+cmake ..
+cmake --build . --target engine-sim-app
+```
+
+If these steps are successful the app will be ready to run from your build folder using:
+```./engine-sim-app```
 
 
+![Alt text](docs/public/screenshots/screenshot_v01.png?raw=true)
 
 ## How do I use it?
 
@@ -59,38 +90,6 @@ I wrote this to demo in a [YouTube video](https://youtu.be/RKT-sKtR970), not as 
 
 Check out [our Frequently Asked Questions](https://github.com/ange-yaghi/engine-sim/wiki/Frequently-Asked-Questions) if you need more details.
 
-## How do I build it? (Ignore this section if you're not a developer!)
-**Note: this project currently only builds on Windows!**
-
-### Step 1 - Clone the repository
-```git clone https://github.com/boxofbox/engine-sim-m1```
-
-### Step 2 - Install Dependencies
-
-```
-brew install cmake
-brew install boost
-brew install bison
-brew install boost
-brew install sse2neon
-brew install sdl2
-brew install sdl2_image
-brew install sdl_sound
-brew install flex
-```
-
-### Step 3 - Build and Run
-From the root directory of the project, run the following commands:
-
-```
-mkdir build
-cd build
-cmake ..
-cmake --build . --target engine-sim-app
-```
-
-If these steps are successful the app will be ready to run from your build folder using:
-```./engine-sim-app```
 
 ## Patreon Supporters
 
