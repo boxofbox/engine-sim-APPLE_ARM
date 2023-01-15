@@ -9,9 +9,12 @@
 struct SDL_Surface;
 
 class ysOpenGLDevice : public ysDevice {
+    
+    ~ysOpenGLDevice();
+
 public:
     ysOpenGLDevice();
-    ~ysOpenGLDevice();
+    static constexpr DeviceAPI SubclassID = DeviceAPI::OpenGL4_0;
 
     // Setup
     virtual ysError InitializeDevice();
@@ -63,12 +66,12 @@ public:
     virtual ysError LinkProgram(ysShaderProgram *program);
     virtual ysError UseShaderProgram(ysShaderProgram *);
 
-    // Input Layouts 
+    // Input Layouts
     virtual ysError CreateInputLayout(ysInputLayout **newLayout, ysShader *shader, const ysRenderGeometryFormat *format);
     virtual ysError UseInputLayout(ysInputLayout *layout);
     virtual ysError DestroyInputLayout(ysInputLayout *&layout);
 
-    // Textures 
+    // Textures
     virtual ysError CreateTexture(ysTexture **texture, const char *fname);
     virtual ysError CreateTexture(ysTexture **texture, int width, int height, const unsigned char *buffer);
     virtual ysError UpdateTexture(ysTexture *texture, const unsigned char *buffer);

@@ -22,16 +22,16 @@ VtecValvetrain::~VtecValvetrain() {
 }
 
 void VtecValvetrain::initialize(const Parameters &parameters) {
-    m_intakeCamshaft = parameters.intakeCamshaft;
-    m_exhaustCamshaft = parameters.exhaustCamshaft;
-    m_vtecIntakeCamshaft = parameters.vtecIntakeCamshaft;
-    m_vtecExhaustCamshaft = parameters.vtexExhaustCamshaft;
+    m_intakeCamshaft = parameters.IntakeCamshaft;
+    m_exhaustCamshaft = parameters.ExhaustCamshaft;
+    m_vtecIntakeCamshaft = parameters.VtecIntakeCamshaft;
+    m_vtecExhaustCamshaft = parameters.VtexExhaustCamshaft;
 
-    m_minRpm = parameters.minRpm;
-    m_minSpeed = parameters.minSpeed;
-    m_minThrottlePosition = parameters.minThrottlePosition;
-    m_manifoldVacuum = parameters.manifoldVacuum;
-    m_engine = parameters.engine;
+    m_minRpm = parameters.MinRpm;
+    m_minSpeed = parameters.MinSpeed;
+    m_minThrottlePosition = parameters.MinThrottlePosition;
+    m_manifoldVacuum = parameters.ManifoldVacuum;
+    m_engine = parameters.Engine;
 }
 
 double VtecValvetrain::intakeValveLift(int cylinder) {

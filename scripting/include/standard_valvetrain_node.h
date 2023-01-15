@@ -28,8 +28,8 @@ namespace es_script {
             m_exhaustCamshaft->generate(exhaustCam, crank, context);
 
             StandardValvetrain::Parameters params;
-            params.intakeCamshaft = intakeCam;
-            params.exhaustCamshaft = exhaustCam;
+            params.IntakeCamshaft = intakeCam;
+            params.ExhaustCamshaft = exhaustCam;
             valvetrain->initialize(params);
 
             return valvetrain;

@@ -39,7 +39,9 @@ ysError dbasic::ShaderStage::Destroy() {
 	for (int i = 0; i < bufferCount; ++i) {
 		YDS_NESTED_ERROR_CALL(m_device->DestroyGPUBuffer(m_bufferBindings[i].Buffer));
 		if (!m_bufferBindings[i].Preallocated) {
-			delete m_bufferBindings[i].Memory;
+			auto *deleter = m_bufferBindings[i].Deleter;
+			assert(deleter != nullptr);
+			deleter(m_bufferBindings[i].Memory);
 		}
 	}
 
@@ -138,7 +140,6 @@ ysError dbasic::ShaderStage::BindScene() {
 	}
 	m_device->UseShaderProgram(m_shaderProgram);
 	m_device->UseInputLayout(m_inputLayout);
-
 	if (m_clearTarget) {
 		m_device->ClearBuffers(m_clearColor.vec);
 	}
@@ -158,7 +159,6 @@ ysError dbasic::ShaderStage::BindScene() {
 	const int bufferCount = GetBufferCount();
 	for (int i = 0; i < bufferCount; ++i) {
 		const ConstantBufferBinding &binding = m_bufferBindings[i];
-		
 		if (binding.Type == ConstantBufferBinding::BufferType::SceneData) {
 			YDS_NESTED_ERROR_CALL(m_device->EditBufferData(binding.Buffer, reinterpret_cast<char *>(binding.Memory)));
 			YDS_NESTED_ERROR_CALL(m_device->UseConstantBuffer(binding.Buffer, binding.Slot));
@@ -177,7 +177,6 @@ ysError dbasic::ShaderStage::BindObject() {
 	const int bufferCount = GetBufferCount();
 	for (int i = 0; i < bufferCount; ++i) {
 		const ConstantBufferBinding &binding = m_bufferBindings[i];
-
 		if (binding.Type == ConstantBufferBinding::BufferType::ObjectData) {
 			YDS_NESTED_ERROR_CALL(m_device->EditBufferData(binding.Buffer, reinterpret_cast<char *>(binding.Memory)));
 			YDS_NESTED_ERROR_CALL(m_device->UseConstantBuffer(binding.Buffer, binding.Slot));

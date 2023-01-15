@@ -63,7 +63,6 @@ ysError ysVulkanDevice::CreateRenderingContext(ysRenderingContext **renderingCon
 
 ysError ysVulkanDevice::UpdateRenderingContext(ysRenderingContext *context) {
     YDS_ERROR_DECLARE("UpdateRenderingContext");
-
     /* TODO */
 
     return YDS_ERROR_RETURN(ysError::None);
@@ -393,3 +392,6 @@ ysError ysVulkanDevice::CreateVulkanDevice(VkSurfaceKHR surface) {
 
     return YDS_ERROR_RETURN(ysError::None);
 }
+
+// ctor magic to register as a subclass
+static ysRegisterSubclass<ysVulkanDevice> reg();

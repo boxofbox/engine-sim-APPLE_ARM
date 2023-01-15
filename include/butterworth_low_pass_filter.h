@@ -25,7 +25,7 @@ public:
         /* void */
     }
 
-    __forceinline T_Real fast_f(T_Real sample) {
+    inline T_Real fast_f(T_Real sample) {
         const T_Real y_prev[4] = {
             m_y.read(3),
             m_y.read(2),

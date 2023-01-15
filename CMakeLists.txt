@@ -1,8 +1,23 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.19)
+
+set(CMAKE_OSX_ARCHITECTURES arm64)
+set(ONLY_ACTIVE_ARCH        NO)
+
+include(CMakeDependentOption)
+
+include_directories(/opt/homebrew/include)
+include_directories(/opt/homebrew/lib)
+
+set(BISON_EXECUTABLE /opt/homebrew/Cellar/bison/3.8.2/bin/bison)
 
 option(DTV "Enable video output" OFF)
 option(PIRANHA_ENABLED "Enable scripting input" ON)
-option(DISCORD_ENABLED "Enable Discord Rich Presence" ON)
+cmake_dependent_option(DISCORD_ENABLED "Enable Discord Rich Presence" ON WIN32 OFF)
+
+# Default to compiling as Release in single-configuration generators
+if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
+endif()
 
 if (DTV)
     add_compile_definitions(ATG_ENGINE_SIM_VIDEO_CAPTURE)
@@ -75,7 +90,6 @@ add_library(engine-sim STATIC
     src/low_pass_filter.cpp
     src/part.cpp
     src/piston.cpp
-    src/piston_engine_simulator.cpp
     src/simulator.cpp
     src/standard_valvetrain.cpp
     src/starter_motor.cpp
@@ -119,7 +133,6 @@ add_library(engine-sim STATIC
     include/low_pass_filter.h
     include/part.h
     include/piston.h
-    include/piston_engine_simulator.h
     include/simulator.h
     include/standard_valvetrain.h
     include/starter_motor.h
@@ -191,18 +204,6 @@ if (PIRANHA_ENABLED)
         piranha)
 endif (PIRANHA_ENABLED)
 
-if (DISCORD_ENABLED)
-    add_library(discord STATIC
-        # Source files
-        dependencies/discord/Discord.cpp
-
-        # Include files
-        dependencies/discord/Discord.h
-        dependencies/discord/discord_register.h
-        dependencies/discord/discord_rpc.h
-    )
-endif (DISCORD_ENABLED)
-
 add_executable(engine-sim-app WIN32
     # Source files
     src/main.cpp
@@ -239,8 +240,6 @@ add_executable(engine-sim-app WIN32
     src/info_cluster.cpp
 
     # Include files
-    include/delta.h
-    include/dtv.h
     include/engine_sim_application.h
     include/geometry_generator.h
     include/simulation_object.h
@@ -250,7 +249,6 @@ add_executable(engine-sim-app WIN32
     include/ui_manager.h
     include/cylinder_pressure_gauge.h
     include/ui_math.h
-    include/units.h
     include/crankshaft_object.h
     include/cylinder_bank_object.h
     include/cylinder_head_object.h
@@ -272,10 +270,7 @@ add_executable(engine-sim-app WIN32
     include/load_simulation_cluster.h
     include/mixer_cluster.h
     include/info_cluster.h
-)
-
-target_link_libraries(engine-sim-app
-    engine-sim
+    include/units.h
 )
 
 if (DTV)
@@ -288,18 +283,21 @@ if (PIRANHA_ENABLED)
         engine-sim-script-interpreter)
 endif (PIRANHA_ENABLED)
 
-if (DISCORD_ENABLED)
-    add_library(discord-rpc STATIC IMPORTED)
-    set_property(TARGET discord-rpc PROPERTY IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/dependencies/discord/lib/discord-rpc.lib)
-    target_link_libraries(engine-sim-app
-    	discord
-	discord-rpc)
-endif (DISCORD_ENABLED)
-
 target_include_directories(engine-sim-app
     PUBLIC dependencies/submodules)
 
 add_subdirectory(dependencies)
+
+if (DISCORD_ENABLED)
+    target_link_libraries(engine-sim-app
+        discord
+        discord-rpc
+    )
+endif (DISCORD_ENABLED)
+
+target_link_libraries(engine-sim-app
+    engine-sim
+)
 
 # GTEST
 

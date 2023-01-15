@@ -28,7 +28,7 @@ namespace atg_scs {
             virtual ~Constraint();
 
             virtual void calculate(Output *output, SystemState *state);
-            __forceinline int getConstraintCount() const { return m_constraintCount; }
+            int getConstraintCount() const { return m_constraintCount; }
 
             int m_index;
             int m_bodyCount;

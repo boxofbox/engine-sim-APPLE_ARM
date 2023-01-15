@@ -1,6 +1,8 @@
 #ifndef ATG_SIMPLE_2D_CONSTRAINT_SOLVER_SPARSE_MATRIX_H
 #define ATG_SIMPLE_2D_CONSTRAINT_SOLVER_SPARSE_MATRIX_H
 
+#include "matrix.h"
+
 #include <assert.h>
 #include <stdint.h>
 #include <string.h>
@@ -261,8 +263,8 @@ namespace atg_scs {
                 }
             }
 
-            __forceinline int getWidth() const { return m_width; }
-            __forceinline int getHeight() const { return m_height; }
+            inline int getWidth() const { return m_width; }
+            inline int getHeight() const { return m_height; }
 
         protected:
             double **m_matrix;

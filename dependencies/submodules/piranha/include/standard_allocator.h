@@ -42,7 +42,7 @@ namespace piranha {
 #ifdef _MSC_VER
                 void *buffer = _aligned_malloc(alignment, sizeof(t_alloc) * n);
 #else
-                void *buffer = std::aligned_alloc(alignment, sizeof(t_alloc) * n);
+                void *buffer = aligned_alloc(alignment, sizeof(t_alloc) * n);
 #endif
                 
                 if (n == 1) {

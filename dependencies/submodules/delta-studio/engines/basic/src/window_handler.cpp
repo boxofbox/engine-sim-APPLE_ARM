@@ -13,6 +13,7 @@ dbasic::WindowHandler::~WindowHandler() {
 }
 
 void dbasic::WindowHandler::OnResizeWindow(int width, int height) {
+    
     m_engine->SetWindowSize(width, height);
     m_device->UpdateRenderingContext(m_context);
     m_engine->GetConsole()->ResetScreenPosition();

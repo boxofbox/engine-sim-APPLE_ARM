@@ -86,10 +86,9 @@ ysError dbasic::Console::UpdateGeometry() {
             if (IsWhiteSpace(character)) continue;
 
             const Font::GlyphData *data = m_font->GetGlyphData(character);
-
             const float offsetX = (-m_engine->GetScreenWidth() / 2.0f) + (scale_x * i);
-            const float offsetY = (m_engine->GetScreenHeight() / 2.0f) - (scale_y * j) - scale_y;
-
+            const float offsetY = (m_engine->GetScreenHeight() / 2.0f) - (scale_y * j) - scale_y - 50;
+            //printf("font: %f, %f, %f, %f\n", data->uv0.x, data->uv0.y, data->uv1.x, data->uv1.y);
             vertexData[quadIndex * 4 + 0].TexCoord = ysVector2(data->uv0.x, data->uv0.y);
             vertexData[quadIndex * 4 + 1].TexCoord = ysVector2(data->uv1.x, data->uv0.y);
             vertexData[quadIndex * 4 + 2].TexCoord = ysVector2(data->uv1.x, data->uv1.y);
@@ -130,7 +129,6 @@ ysError dbasic::Console::SetCharacter(char character) {
 
     const int x = m_actualLocation.x;
     const int y = m_actualLocation.y;
-
     if (x >= BufferWidth || y >= BufferHeight ||
         x < 0 || y < 0) return YDS_ERROR_RETURN(ysError::None);
 
@@ -222,7 +220,7 @@ int dbasic::Console::GetTotalNotWhitespace() const {
             }
         }
     }
-
+    //printf("white space; %d\n", n);
     return n;
 }
 

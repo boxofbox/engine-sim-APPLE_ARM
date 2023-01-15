@@ -33,6 +33,7 @@ Gauge::Gauge() {
     m_needleKd = 25.0f;
 
     m_gamma = 1.0f;
+    rendered = false;
 }
 
 Gauge::~Gauge() {
@@ -152,10 +153,10 @@ void Gauge::render() {
         generator->startShape();
         generator->generateRing2d(ringParams);
         generator->endShape(&bandIndices);
-
         m_app->getShaders()->SetBaseColor(band.color);
         m_app->drawGenerated(bandIndices, 0x11, m_app->getShaders()->GetUiFlags());
     }
+    
 
     m_app->getShaders()->SetBaseColor(m_app->getForegroundColor());
     m_app->drawGenerated(ticks, 0x11, m_app->getShaders()->GetUiFlags());

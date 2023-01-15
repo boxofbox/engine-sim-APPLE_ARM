@@ -30,19 +30,19 @@ void IgnitionModule::destroy() {
 }
 
 void IgnitionModule::initialize(const Parameters &params) {
-    m_cylinderCount = params.cylinderCount;
+    m_cylinderCount = params.CylinderCount;
     m_plugs = new SparkPlug[m_cylinderCount];
-    m_crankshaft = params.crankshaft;
-    m_timingCurve = params.timingCurve;
-    m_revLimit = params.revLimit;
-    m_limiterDuration = params.limiterDuration;
+    m_crankshaft = params.Crankshaft;
+    m_timingCurve = params.TimingCurve;
+    m_revLimit = params.RevLimit;
+    m_limiterDuration = params.LimiterDuration;
 }
 
 void IgnitionModule::setFiringOrder(int cylinderIndex, double angle) {
     assert(cylinderIndex < m_cylinderCount);
 
-    m_plugs[cylinderIndex].angle = angle;
-    m_plugs[cylinderIndex].enabled = true;
+    m_plugs[cylinderIndex].Angle = angle;
+    m_plugs[cylinderIndex].Enabled = true;
 }
 
 void IgnitionModule::reset() {
@@ -58,7 +58,7 @@ void IgnitionModule::update(double dt) {
         const double advance = getTimingAdvance();
 
         for (int i = 0; i < m_cylinderCount; ++i) {
-            double adjustedAngle = positiveMod(m_plugs[i].angle - advance, fourPi);
+            double adjustedAngle = positiveMod(m_plugs[i].Angle - advance, fourPi);
             const double r0 = m_lastCrankshaftAngle;
             double r1 = cycleAngle;
 
@@ -69,7 +69,7 @@ void IgnitionModule::update(double dt) {
                 }
 
                 if (adjustedAngle >= r0 && adjustedAngle < r1) {
-                    m_plugs[i].ignitionEvent = m_plugs[i].enabled;
+                    m_plugs[i].IgnitionEvent = m_plugs[i].Enabled;
                 }
             }
             else {
@@ -79,7 +79,7 @@ void IgnitionModule::update(double dt) {
                 }
 
                 if (adjustedAngle >= r1 && adjustedAngle < r0) {
-                    m_plugs[i].ignitionEvent = m_plugs[i].enabled;
+                    m_plugs[i].IgnitionEvent = m_plugs[i].Enabled;
                 }
             }
         }
@@ -98,12 +98,12 @@ void IgnitionModule::update(double dt) {
 }
 
 bool IgnitionModule::getIgnitionEvent(int index) const {
-    return m_plugs[index].ignitionEvent;
+    return m_plugs[index].IgnitionEvent;
 }
 
 void IgnitionModule::resetIgnitionEvents() {
     for (int i = 0; i < m_cylinderCount; ++i) {
-        m_plugs[i].ignitionEvent = false;
+        m_plugs[i].IgnitionEvent = false;
     }
 }
 

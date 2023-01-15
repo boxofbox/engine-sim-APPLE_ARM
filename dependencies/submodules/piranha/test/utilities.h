@@ -12,7 +12,7 @@ using namespace piranha;
 #define CMF_PATH "../../demos/cmfs/"
 #define WORKSPACE_PATH "../../workspace/"
 #define TMP_PATH (WORKSPACE_PATH "tmp/")
-#define IR_TEST_FILES "../../test/sdl/"
+#define IR_TEST_FILES "../test/sdl/"
 
 #define CHECK_IR_POS(IrParserStructure, _colStart, _colEnd, _lineStart, _lineEnd)    \
     EXPECT_EQ((IrParserStructure)->getSummaryToken()->colStart,    (_colStart));        \

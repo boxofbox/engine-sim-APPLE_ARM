@@ -882,7 +882,6 @@ bool GeometryGenerator::startPath(PathParameters &params) {
 
 bool GeometryGenerator::generatePathSegment(PathParameters &params, bool detached) {
     const int n = params.n0 + params.n1;
-
     if (params.i > n - 1) return true;
 
     Point *p0 = (params.i >= params.n0) ? params.p1 : params.p0;
@@ -908,10 +907,8 @@ bool GeometryGenerator::generatePathSegment(PathParameters &params, bool detache
             writeFace(params.v0, params.v1, params.v1 + 1);
             writeFace(params.v1, params.v1 + 2, params.v1 + 1);
         }
-
         return true;
     }
-
     Point *p1 = (params.i + 1 >= params.n0) ? params.p1 : params.p0;
     const int i1 = (params.i + 1 >= params.n0) ? (params.i + 1 - params.n0) : params.i + 1;
 

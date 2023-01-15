@@ -6,8 +6,8 @@
 class StandardValvetrain : public Valvetrain {
 public:
     struct Parameters {
-        Camshaft *intakeCamshaft;
-        Camshaft *exhaustCamshaft;
+        Camshaft *IntakeCamshaft;
+        Camshaft *ExhaustCamshaft;
     };
 
 public:

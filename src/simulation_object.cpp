@@ -62,8 +62,7 @@ void SimulationObject::setTransform(
     float scale,
     float lx,
     float ly,
-    float angle,
-    float z)
+    float angle)
 {
     double p_x, p_y;
     rigidBody->localToWorld(lx, ly, &p_x, &p_y);
@@ -72,7 +71,7 @@ void SimulationObject::setTransform(
             ysMath::Constants::ZAxis,
             (float)rigidBody->theta + angle);
     const ysMatrix trans = ysMath::TranslationTransform(
-            ysMath::LoadVector((float)p_x, (float)p_y, z));
+            ysMath::LoadVector((float)p_x, (float)p_y, 0.0f));
     const ysMatrix scaleTransform = ysMath::ScaleTransform(ysMath::LoadScalar(scale));
 
     m_app->getShaders()->SetObjectTransform(

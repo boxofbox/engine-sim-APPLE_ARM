@@ -2,10 +2,11 @@
 #define PIRANHA_MEMORY_MANAGEMENT_H
 
 #include <assert.h>
+#include <inttypes.h>
 
 namespace piranha {
 
-    typedef unsigned __int64 mem_size;
+    typedef uint64_t mem_size;
 
     constexpr mem_size KB = 1000;
     constexpr mem_size MB = 1000 * KB;

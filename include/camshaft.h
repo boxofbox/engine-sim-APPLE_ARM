@@ -11,19 +11,19 @@ class Camshaft : public Part {
     public:
         struct Parameters {
             // Number of lobes
-            int lobes;
+            int Lobes;
 
             // Camshaft advance in camshaft degrees
-            double advance = 0;
+            double Advance = 0;
 
             // Corresponding crankshaft
-            Crankshaft *crankshaft;
+            Crankshaft *Crankshaft;
 
             // Lobe profile
-            Function *lobeProfile;
+            Function *LobeProfile;
 
             // Base radius
-            double baseRadius = units::distance(600, units::thou);
+            double BaseRadius = units::distance(600, units::thou);
         };
 
     public:

@@ -29,6 +29,9 @@ void delta_demo::DeltaBasicDemoApplication::Initialize(void *instance, ysContext
     ysMonitor *monitor = windowSystem->GetPrimaryMonitor();
 
     ysWindow *window = m_engine.GetGameWindow();
+    int width = monitor->GetPhysicalWidth();
+    int height = monitor->GetPhysicalHeight();
+    printf("Width: %d\nHeight: %d\n", width, height);
     window->SetWindowSize(monitor->GetPhysicalWidth(), monitor->GetPhysicalHeight());
 
     dbasic::Material *lightFill = m_assetManager.NewMaterial();
@@ -95,6 +98,24 @@ void delta_demo::DeltaBasicDemoApplication::Initialize(void *instance, ysContext
     m_engine.SetShaderSet(&m_shaderSet);
 
     m_shaders.SetClearColor(ysColor::srgbiToLinear(0xadd8e6));
+
+    float vertexData[] = {
+          -0.5f, 0.5f, 0.0f, 1.0f ,  0.0f, 1.0f,    0.0f, 0.0f, 1.0f, 0.0f ,
+          0.5f, 0.5f, 0.0f, 1.0f ,   1.0f, 1.0f,    0.0f, 0.0f, 1.0f, 0.0f ,
+          0.5f, -0.5f, 0.0f, 1.0f ,  1.0f, 0.0f,    0.0f, 0.0f, 1.0f, 0.0f ,
+          -0.5f, -0.5f, 0.0f, 1.0f , 0.0f, 0.0f,    0.0f, 0.0f, 1.0f, 0.0f  };
+
+    unsigned short indices[] = {
+        2, 1, 0,
+        3, 2, 0 };
+
+
+
+    m_engine.GetDevice()->CreateVertexBuffer(&m_mainVertexBuffer, sizeof(vertexData) , (char *)vertexData);
+    m_engine.GetDevice()->CreateIndexBuffer(&m_mainIndexBuffer, sizeof(indices) , (char *)indices);
+
+    m_engine.GetDevice()->CreateVertexBuffer(&m_mainVertexBuffer2, sizeof(vertexData) , (char *)vertexData);
+    m_engine.GetDevice()->CreateIndexBuffer(&m_mainIndexBuffer2, sizeof(indices), (char *)indices);
 }
 
 void delta_demo::DeltaBasicDemoApplication::Process() {
@@ -105,10 +126,43 @@ void delta_demo::DeltaBasicDemoApplication::Render() {
     m_shaders.SetCameraPosition(0.0f, 0.0f);
     m_shaders.SetCameraAltitude(20.0f);
 
-    m_renderSkeleton->UpdateAnimation(m_engine.GetFrameLength() * 60);
-    m_engine.DrawRenderSkeleton(m_shaders.GetRegularFlags(), m_renderSkeleton, 1.0f, &m_shaders, 0);
+    //m_renderSkeleton->UpdateAnimation(m_engine.GetFrameLength() * 60);
+    //m_engine.DrawRenderSkeleton(m_shaders.GetRegularFlags(), m_renderSkeleton, 1.0f, &m_shaders, 0);
 
-    ysAnimationChannel::ActionSettings normalSpeed;
+    float vertexData[] = {
+          -5, 5, 0.0f, 1.0f ,  0.0f, 1.0f,    0.0f, 0.0f, 1.0f, 0.0f ,
+          5, 5, 0.0f, 1.0f ,   1.0f, 1.0f,    0.0f, 0.0f, 1.0f, 0.0f ,
+          5, -5, 0.0f, 1.0f ,  1.0f, 0.0f,    0.0f, 0.0f, 1.0f, 0.0f ,
+          -5, -5, 0.0f, 1.0f , 0.0f, 0.0f,    0.0f, 0.0f, 1.0f, 0.0f  };
+
+    unsigned short indices[] = {
+        2, 1, 0,
+        3, 2, 0 };
+
+    m_shaders.SetBaseColor(ysColor::srgbiToLinear(0xFF0000FF));
+    m_shaders.SetColorReplace(true);
+    m_shaders.SetLit(false);
+    m_engine.GetDevice()->EditBufferDataRange(m_mainVertexBuffer, (char*)vertexData, sizeof(vertexData), 0);
+    m_engine.GetDevice()->EditBufferDataRange(m_mainIndexBuffer, (char*)indices, sizeof(indices), 0);
+    m_engine.DrawGeneric(m_shaders.GetRegularFlags(), m_mainIndexBuffer, m_mainVertexBuffer, 40, 0, 0, 2);
+
+    float vertexData2[] = {
+          -20, -10, 0.0f, 1.0f ,  0.0f, 1.0f,    0.0f, 0.0f, 1.0f, 0.0f ,
+          -10, -10, 0.0f, 1.0f ,   1.0f, 1.0f,    0.0f, 0.0f, 1.0f, 0.0f ,
+          -10, -20, 0.0f, 1.0f ,  1.0f, 0.0f,    0.0f, 0.0f, 1.0f, 0.0f ,
+          -20, -20, 0.0f, 1.0f , 0.0f, 0.0f,    0.0f, 0.0f, 1.0f, 0.0f  };
+
+    unsigned short indices2[] = {
+        2, 1, 0,
+        3, 2, 0 };
+
+
+    m_engine.GetDevice()->EditBufferDataRange(m_mainVertexBuffer2, (char*)vertexData2, sizeof(vertexData2), 0);
+    m_engine.GetDevice()->EditBufferDataRange(m_mainIndexBuffer2, (char*)indices2, sizeof(indices), 0);
+    m_shaders.SetBaseColor(ysColor::srgbiToLinear(0xFFFFFFFF));
+    m_engine.DrawGeneric(m_shaders.GetRegularFlags(), m_mainIndexBuffer2, m_mainVertexBuffer2, 40, 0, 0, 2);
+
+   ysAnimationChannel::ActionSettings normalSpeed;
     normalSpeed.Speed = 1.0f;
     normalSpeed.FadeIn = 20.0f;
 
@@ -213,10 +267,8 @@ void delta_demo::DeltaBasicDemoApplication::Run() {
         if (m_engine.IsKeyDown(ysKey::Code::Escape)) {
             break;
         }
-
         Process();
         Render();
-
         m_engine.EndFrame();
     }
 }

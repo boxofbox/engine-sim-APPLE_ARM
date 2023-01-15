@@ -16,7 +16,7 @@ namespace atg_scs {
                     Matrix *result,
                     Matrix *previous);
 
-            static __forceinline double fastAbs(double v) {
+            static double fastAbs(double v) {
                 return (v > 0)
                     ? v
                     : -v;

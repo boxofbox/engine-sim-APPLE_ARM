@@ -10,6 +10,7 @@
 class GasSystem {
     public:
         struct Mix {
+            Mix() {}
             double p_fuel = 0.0;
             double p_inert = 1.0;
             double p_o2 = 0.0;

@@ -46,9 +46,6 @@ public:
     ysKeyboardAggregator *GetKeyboardAggregator() { return &m_keyboardAggregator; }
     ysMouseAggregator *GetMouseAggregator() { return &m_mouseAggregator; }
 
-    bool IsGlobalInputEnabled() const { return m_enableGlobalInput; }
-    void SetGlobalInputEnabled(bool enabled) { m_enableGlobalInput = enabled; }
-
 protected:
     // Create and register input devices. This function must be called
     // before any input can be processed.
@@ -78,8 +75,6 @@ protected:
 
     // Currently assigned window system
     ysWindowSystem *m_windowSystem;
-
-    bool m_enableGlobalInput;
 };
 
 #endif /* YDS_INPUT_SYSTEM_H */

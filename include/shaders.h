@@ -31,8 +31,7 @@ class Shaders : public dbasic::ShaderBase {
             float height,
             const Bounds &cameraBounds,
             float screenWidth,
-            float screenHeight,
-            float angle = 0.0f);
+            float screenHeight);
         void CalculateUiCamera(float screenWidth, float screenHeight);
 
         void SetClearColor(const ysVector &col);

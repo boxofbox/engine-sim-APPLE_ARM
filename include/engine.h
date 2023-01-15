@@ -17,26 +17,20 @@
 
 #include <string>
 
-class Simulator;
-class Vehicle;
-class Transmission;
 class Engine : public Part {
     public:
         struct Parameters {
-            int cylinderBanks;
-            int cylinderCount;
-            int crankshaftCount;
-            int exhaustSystemCount;
-            int intakeCount;
+            int CylinderBanks;
+            int CylinderCount;
+            int CrankshaftCount;
+            int ExhaustSystemCount;
+            int IntakeCount;
 
-            std::string name;
+            std::string Name;
 
-            double starterTorque = units::torque(90.0, units::ft_lb);
-            double starterSpeed = units::rpm(200);
-            double redline = units::rpm(6500);
-            double dynoMinSpeed = units::rpm(1000);
-            double dynoMaxSpeed = units::rpm(6500);
-            double dynoHoldStep = units::rpm(100);
+            double StarterTorque = units::torque(90.0, units::ft_lb);
+            double StarterSpeed = units::rpm(200);
+            double Redline = units::rpm(6500);
 
             Throttle *throttle;
 
@@ -80,9 +74,6 @@ class Engine : public Part {
         inline double getStarterTorque() const { return m_starterTorque; }
         inline double getStarterSpeed() const { return m_starterSpeed; }
         inline double getRedline() const { return m_redline; }
-        inline double getDynoMinSpeed() const { return m_dynoMinSpeed; }
-        inline double getDynoMaxSpeed() const { return m_dynoMaxSpeed; }
-        inline double getDynoHoldStep() const { return m_dynoHoldStep; }
 
         int getCylinderBankCount() const { return m_cylinderBankCount; }
         int getCylinderCount() const { return m_cylinderCount; }
@@ -107,8 +98,6 @@ class Engine : public Part {
         double getInitialNoise() const { return m_initialNoise; }
         double getInitialJitter() const { return m_initialJitter; }
 
-        virtual Simulator *createSimulator(Vehicle *vehicle, Transmission *transmission);
-
     protected:
         std::string m_name;
 
@@ -127,9 +116,6 @@ class Engine : public Part {
         double m_starterTorque;
         double m_starterSpeed;
         double m_redline;
-        double m_dynoMinSpeed;
-        double m_dynoMaxSpeed;
-        double m_dynoHoldStep;
 
         double m_initialSimulationFrequency;
         double m_initialHighFrequencyGain;

@@ -62,6 +62,8 @@ class Gauge : public UiElement {
 
         Point m_center;
 
+        bool rendered;
+
     protected:
         float m_needlePosition;
         float m_needleVelocity;

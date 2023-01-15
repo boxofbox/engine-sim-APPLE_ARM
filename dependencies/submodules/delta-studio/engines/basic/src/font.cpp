@@ -12,7 +12,7 @@ dbasic::Font::Font() {
 }
 
 dbasic::Font::~Font() {
-    /* void */
+    /* void */ 
 }
 
 void dbasic::Font::Initialize(int firstGlyph, int glyphCount, void *cdata_, float fontHeight, ysTexture *texture) {
@@ -42,6 +42,5 @@ void dbasic::Font::Initialize(int firstGlyph, int glyphCount, void *cdata_, floa
 const dbasic::Font::GlyphData *dbasic::Font::GetGlyphData(int glyph) const {
     if (glyph < m_firstGlyph) return nullptr;
     if (glyph >= m_firstGlyph + m_glyphCount) return nullptr;
-
     return &m_glyphData[glyph - m_firstGlyph];
 }

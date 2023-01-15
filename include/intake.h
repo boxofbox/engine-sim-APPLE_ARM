@@ -9,7 +9,7 @@ class Intake : public Part {
     public:
         struct Parameters {
             // Plenum volume
-            double volume;
+            double Volume;
 
             // Plenum dimensions
             double CrossSectionArea;

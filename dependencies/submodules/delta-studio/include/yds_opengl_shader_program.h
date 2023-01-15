@@ -10,11 +10,12 @@ class ysOpenGLShaderProgram : public ysShaderProgram {
 public:
     ysOpenGLShaderProgram();
     ~ysOpenGLShaderProgram();
+    unsigned int m_handle;
 
 protected:
     ysOpenGLShader *GetShader(ysShader::ShaderType type);
 
-    unsigned int m_handle;
+    
 };
 
 #endif /* YDS_OPENGL_SHADER_PROGRAM_H */

@@ -7,18 +7,18 @@ class Engine;
 class VtecValvetrain : public Valvetrain {
 public:
     struct Parameters {
-        double minRpm;
-        double minSpeed;
-        double manifoldVacuum;
-        double minThrottlePosition;
+        double MinRpm;
+        double MinSpeed;
+        double ManifoldVacuum;
+        double MinThrottlePosition;
 
-        Camshaft *intakeCamshaft;
-        Camshaft *exhaustCamshaft;
+        Camshaft *IntakeCamshaft;
+        Camshaft *ExhaustCamshaft;
 
-        Camshaft *vtecIntakeCamshaft;
-        Camshaft *vtexExhaustCamshaft;
+        Camshaft *VtecIntakeCamshaft;
+        Camshaft *VtexExhaustCamshaft;
 
-        Engine *engine;
+        Engine *Engine;
     };
 
 public:

@@ -24,7 +24,7 @@
 #include "../discord/Discord.h"
 #endif
 
-std::string EngineSimApplication::s_buildVersion = "0.1.12a";
+std::string EngineSimApplication::s_buildVersion = "0.1.11a";
 
 EngineSimApplication::EngineSimApplication() {
     m_assetPath = "";
@@ -58,7 +58,6 @@ EngineSimApplication::EngineSimApplication() {
     m_torque = 0;
     m_dynoSpeed = 0;
 
-    m_simulator = nullptr;
     m_engineView = nullptr;
     m_rightGaugeCluster = nullptr;
     m_temperatureGauge = nullptr;
@@ -80,8 +79,6 @@ EngineSimApplication::EngineSimApplication() {
     m_screen = 0;
     m_viewParameters.Layer0 = 0;
     m_viewParameters.Layer1 = 0;
-
-    m_displayAngle = 0.0f;
 }
 
 EngineSimApplication::~EngineSimApplication() {
@@ -108,7 +105,7 @@ void EngineSimApplication::initialize(void *instance, ysContextObject::DeviceAPI
     m_engine.GetConsole()->SetDefaultFontDirectory(enginePath + "/fonts/");
 
     const std::string shaderPath = enginePath + "/shaders/";
-    const std::string winTitle = "Engine Sim | AngeTheGreat | v" + s_buildVersion;
+    std::string winTitle = "Engine Sim | AngeTheGreat | v" + s_buildVersion;
     dbasic::DeltaEngine::GameEngineSettings settings;
     settings.API = api;
     settings.DepthBuffer = false;
@@ -177,7 +174,7 @@ void EngineSimApplication::initialize() {
         m_engine.GetAudioDevice()->CreateBuffer(&params, 44100);
 
     m_audioSource = m_engine.GetAudioDevice()->CreateSource(m_outputAudioBuffer);
-    m_audioSource->SetMode((m_simulator->getEngine() != nullptr)
+    m_audioSource->SetMode((m_simulator.getEngine() != nullptr)
         ? ysAudioSource::Mode::Loop
         : ysAudioSource::Mode::Stop);
     m_audioSource->SetPan(0.0f);
@@ -219,30 +216,20 @@ void EngineSimApplication::process(float frame_dt) {
         speed = 1 / 1000.0;
     }
 
-    if (m_engine.IsKeyDown(ysKey::Code::F1)) {
-        m_displayAngle += frame_dt * 1.0f;
-    }
-    else if (m_engine.IsKeyDown(ysKey::Code::F2)) {
-        m_displayAngle -= frame_dt * 1.0f;
-    }
-    else if (m_engine.ProcessKeyDown(ysKey::Code::F3)) {
-        m_displayAngle = 0.0f;
-    }
-
-    m_simulator->setSimulationSpeed(speed);
+    m_simulator.setSimulationSpeed(speed);
 
     const double avgFramerate = clamp(m_engine.GetAverageFramerate(), 30.0f, 1000.0f);
-    m_simulator->startFrame(1 / avgFramerate);
+    m_simulator.startFrame(1 / avgFramerate);
 
     auto proc_t0 = std::chrono::steady_clock::now();
-    const int iterationCount = m_simulator->getFrameIterationCount();
-    while (m_simulator->simulateStep()) {
+    const int iterationCount = m_simulator.getFrameIterationCount();
+    while (m_simulator.simulateStep()) {
         m_oscCluster->sample();
     }
 
     auto proc_t1 = std::chrono::steady_clock::now();
 
-    m_simulator->endFrame();
+    m_simulator.endFrame();
 
     auto duration = proc_t1 - proc_t0;
     if (iterationCount > 0) {
@@ -271,7 +258,7 @@ void EngineSimApplication::process(float frame_dt) {
     }
 
     int16_t *samples = new int16_t[maxWrite];
-    const int readSamples = m_simulator->readAudioOutput(maxWrite, samples);
+    const int readSamples = m_simulator.readAudioOutput(maxWrite, samples);
 
     for (SampleOffset i = 0; i < (SampleOffset)readSamples && i < maxWrite; ++i) {
         const int16_t sample = samples[i];
@@ -306,7 +293,7 @@ void EngineSimApplication::process(float frame_dt) {
     }
 
     m_performanceCluster->addInputBufferUsageSample(
-        (double)m_simulator->getSynthesizerInputLatency() / m_simulator->getSynthesizerInputLatencyTarget());
+        (double)m_simulator.getSynthesizerInputLatency() / m_simulator.getSynthesizerInputLatencyTarget());
     m_performanceCluster->addAudioLatencySample(
         m_audioBuffer.offsetDelta(m_audioSource->GetCurrentWritePosition(), m_audioBuffer.m_writePointer) / (44100 * 0.1));
 }
@@ -356,7 +343,7 @@ void EngineSimApplication::run() {
         if (m_engine.ProcessKeyDown(ysKey::Code::Return)) {
             m_audioSource->SetMode(ysAudioSource::Mode::Stop);
             loadScript();
-            if (m_simulator->getEngine() != nullptr) {
+            if (m_simulator.getEngine() != nullptr) {
                 m_audioSource->SetMode(ysAudioSource::Mode::Loop);
             }
         }
@@ -398,14 +385,16 @@ void EngineSimApplication::run() {
         if (isRecording() && !readyToRecord()) {
             stopRecording();
         }
+        
 
         if (!m_paused || m_engine.ProcessKeyDown(ysKey::Code::Right)) {
-            process(m_engine.GetFrameLength());
+            process(m_engine.GetFrameLength()); 
         }
 
         m_uiManager.update(m_engine.GetFrameLength());
 
         renderScene();
+        //printf("frame time: %f\n", m_engine.GetFrameLength());
 
         m_engine.EndFrame();
 
@@ -418,7 +407,7 @@ void EngineSimApplication::run() {
         stopRecording();
     }
 
-    m_simulator->endAudioRenderingThread();
+    m_simulator.endAudioRenderingThread();
 }
 
 void EngineSimApplication::destroy() {
@@ -430,7 +419,7 @@ void EngineSimApplication::destroy() {
     m_assetManager.Destroy();
     m_engine.Destroy();
 
-    m_simulator->destroy();
+    m_simulator.destroy();
     m_audioBuffer.destroy();
 }
 
@@ -439,13 +428,6 @@ void EngineSimApplication::loadEngine(
     Vehicle *vehicle,
     Transmission *transmission)
 {
-    destroyObjects();
-
-    if (m_simulator != nullptr) {
-        m_simulator->releaseSimulation();
-        delete m_simulator;
-    }
-
     if (m_vehicle != nullptr) {
         delete m_vehicle;
         m_vehicle = nullptr;
@@ -465,7 +447,8 @@ void EngineSimApplication::loadEngine(
     m_vehicle = vehicle;
     m_transmission = transmission;
 
-    m_simulator = engine->createSimulator(vehicle, transmission);
+    destroyObjects();
+    m_simulator.releaseSimulation();
 
     if (engine == nullptr || vehicle == nullptr || transmission == nullptr) {
         m_iceEngine = nullptr;
@@ -479,24 +462,30 @@ void EngineSimApplication::loadEngine(
     m_viewParameters.Layer1 = engine->getMaxDepth();
     engine->calculateDisplacement();
 
-    m_simulator->setSimulationFrequency(engine->getSimulationFrequency());
+    m_simulator.setFluidSimulationSteps(8);
+    m_simulator.setSimulationFrequency(engine->getSimulationFrequency());
 
-    Synthesizer::AudioParameters audioParams = m_simulator->synthesizer().getAudioParameters();
-    audioParams.inputSampleNoise = static_cast<float>(engine->getInitialJitter());
-    audioParams.airNoise = static_cast<float>(engine->getInitialNoise());
+    Simulator::Parameters simulatorParams;
+    simulatorParams.SystemType = Simulator::SystemType::NsvOptimized;
+    m_simulator.initialize(simulatorParams);
+    m_simulator.loadSimulation(engine, vehicle, transmission);
+
+    Synthesizer::AudioParameters audioParams = m_simulator.getSynthesizer()->getAudioParameters();
+    audioParams.InputSampleNoise = static_cast<float>(engine->getInitialJitter());
+    audioParams.AirNoise = static_cast<float>(engine->getInitialNoise());
     audioParams.dF_F_mix = static_cast<float>(engine->getInitialHighFrequencyGain());
-    m_simulator->synthesizer().setAudioParameters(audioParams);
+    m_simulator.getSynthesizer()->setAudioParameters(audioParams);
 
     for (int i = 0; i < engine->getExhaustSystemCount(); ++i) {
         ImpulseResponse *response = engine->getExhaustSystem(i)->getImpulseResponse();
 
-        ysWindowsAudioWaveFile waveFile;
+        ysAudioWaveFile waveFile;
         waveFile.OpenFile(response->getFilename().c_str());
         waveFile.InitializeInternalBuffer(waveFile.GetSampleCount());
         waveFile.FillBuffer(0);
         waveFile.CloseFile();
 
-        m_simulator->synthesizer().initializeImpulseResponse(
+        m_simulator.getSynthesizer()->initializeImpulseResponse(
             reinterpret_cast<const int16_t *>(waveFile.GetBuffer()),
             waveFile.GetSampleCount(),
             response->getVolume(),
@@ -506,7 +495,7 @@ void EngineSimApplication::loadEngine(
         waveFile.DestroyInternalBuffer();
     }
 
-    m_simulator->startAudioRenderingThread();
+    m_simulator.startAudioRenderingThread();
 }
 
 void EngineSimApplication::drawGenerated(
@@ -685,36 +674,36 @@ void EngineSimApplication::processEngineInput() {
             ? 0.001
             : 0.01;
 
-        Synthesizer::AudioParameters audioParams = m_simulator->synthesizer().getAudioParameters();
-        audioParams.volume = clamp(audioParams.volume + mouseWheelDelta * rate * dt);
+        Synthesizer::AudioParameters audioParams = m_simulator.getSynthesizer()->getAudioParameters();
+        audioParams.Volume = clamp(audioParams.Volume + mouseWheelDelta * rate * dt);
 
-        m_simulator->synthesizer().setAudioParameters(audioParams);
+        m_simulator.getSynthesizer()->setAudioParameters(audioParams);
         fineControlInUse = true;
 
-        m_infoCluster->setLogMessage("[Z] - Set volume to " + std::to_string(audioParams.volume));
+        m_infoCluster->setLogMessage("[Z] - Set volume to " + std::to_string(audioParams.Volume));
     }
     else if (m_engine.IsKeyDown(ysKey::Code::X)) {
         const double rate = fineControlMode
             ? 0.001
             : 0.01;
 
-        Synthesizer::AudioParameters audioParams = m_simulator->synthesizer().getAudioParameters();
-        audioParams.convolution = clamp(audioParams.convolution + mouseWheelDelta * rate * dt);
+        Synthesizer::AudioParameters audioParams = m_simulator.getSynthesizer()->getAudioParameters();
+        audioParams.Convolution = clamp(audioParams.Convolution + mouseWheelDelta * rate * dt);
 
-        m_simulator->synthesizer().setAudioParameters(audioParams);
+        m_simulator.getSynthesizer()->setAudioParameters(audioParams);
         fineControlInUse = true;
 
-        m_infoCluster->setLogMessage("[X] - Set convolution level to " + std::to_string(audioParams.convolution));
+        m_infoCluster->setLogMessage("[X] - Set convolution level to " + std::to_string(audioParams.Convolution));
     }
     else if (m_engine.IsKeyDown(ysKey::Code::C)) {
         const double rate = fineControlMode
             ? 0.00001
             : 0.001;
 
-        Synthesizer::AudioParameters audioParams = m_simulator->synthesizer().getAudioParameters();
+        Synthesizer::AudioParameters audioParams = m_simulator.getSynthesizer()->getAudioParameters();
         audioParams.dF_F_mix = clamp(audioParams.dF_F_mix + mouseWheelDelta * rate * dt);
 
-        m_simulator->synthesizer().setAudioParameters(audioParams);
+        m_simulator.getSynthesizer()->setAudioParameters(audioParams);
         fineControlInUse = true;
 
         m_infoCluster->setLogMessage("[C] - Set high freq. gain to " + std::to_string(audioParams.dF_F_mix));
@@ -724,26 +713,26 @@ void EngineSimApplication::processEngineInput() {
             ? 0.001
             : 0.01;
 
-        Synthesizer::AudioParameters audioParams = m_simulator->synthesizer().getAudioParameters();
-        audioParams.airNoise = clamp(audioParams.airNoise + mouseWheelDelta * rate * dt);
+        Synthesizer::AudioParameters audioParams = m_simulator.getSynthesizer()->getAudioParameters();
+        audioParams.AirNoise = clamp(audioParams.AirNoise + mouseWheelDelta * rate * dt);
 
-        m_simulator->synthesizer().setAudioParameters(audioParams);
+        m_simulator.getSynthesizer()->setAudioParameters(audioParams);
         fineControlInUse = true;
 
-        m_infoCluster->setLogMessage("[V] - Set low freq. noise to " + std::to_string(audioParams.airNoise));
+        m_infoCluster->setLogMessage("[V] - Set low freq. noise to " + std::to_string(audioParams.AirNoise));
     }
     else if (m_engine.IsKeyDown(ysKey::Code::B)) {
         const double rate = fineControlMode
             ? 0.001
             : 0.01;
 
-        Synthesizer::AudioParameters audioParams = m_simulator->synthesizer().getAudioParameters();
-        audioParams.inputSampleNoise = clamp(audioParams.inputSampleNoise + mouseWheelDelta * rate * dt);
+        Synthesizer::AudioParameters audioParams = m_simulator.getSynthesizer()->getAudioParameters();
+        audioParams.InputSampleNoise = clamp(audioParams.InputSampleNoise + mouseWheelDelta * rate * dt);
 
-        m_simulator->synthesizer().setAudioParameters(audioParams);
+        m_simulator.getSynthesizer()->setAudioParameters(audioParams);
         fineControlInUse = true;
 
-        m_infoCluster->setLogMessage("[B] - Set high freq. noise to " + std::to_string(audioParams.inputSampleNoise));
+        m_infoCluster->setLogMessage("[B] - Set high freq. noise to " + std::to_string(audioParams.InputSampleNoise));
     }
     else if (m_engine.IsKeyDown(ysKey::Code::N)) {
         const double rate = fineControlMode
@@ -751,25 +740,25 @@ void EngineSimApplication::processEngineInput() {
             : 100.0;
 
         const double newSimulationFrequency = clamp(
-            m_simulator->getSimulationFrequency() + mouseWheelDelta * rate * dt,
+            m_simulator.getSimulationFrequency() + mouseWheelDelta * rate * dt,
             400.0, 400000.0);
 
-        m_simulator->setSimulationFrequency(newSimulationFrequency);
+        m_simulator.setSimulationFrequency(newSimulationFrequency);
         fineControlInUse = true;
 
-        m_infoCluster->setLogMessage("[N] - Set simulation freq to " + std::to_string(m_simulator->getSimulationFrequency()));
+        m_infoCluster->setLogMessage("[N] - Set simulation freq to " + std::to_string(m_simulator.getSimulationFrequency()));
     }
-    else if (m_engine.IsKeyDown(ysKey::Code::G) && m_simulator->m_dyno.m_hold) {
+    else if (m_engine.IsKeyDown(ysKey::Code::G) && m_simulator.m_dyno.m_hold) {
         if (mouseWheelDelta > 0) {
-            m_dynoSpeed += m_iceEngine->getDynoHoldStep();
+            m_dynoSpeed += units::rpm(100.0);
         }
         else if (mouseWheelDelta < 0) {
-            m_dynoSpeed -= m_iceEngine->getDynoHoldStep();
+            m_dynoSpeed -= units::rpm(100.0);
         }
 
-        m_dynoSpeed = clamp(m_dynoSpeed, m_iceEngine->getDynoMinSpeed(), m_iceEngine->getDynoMaxSpeed());
+        m_dynoSpeed = clamp(m_dynoSpeed, units::rpm(0), DBL_MAX);
 
-        m_infoCluster->setLogMessage("[G] - Set dyno speed to " + std::to_string(units::toRpm(m_dynoSpeed)));
+        m_infoCluster->setLogMessage("[G] - Set dyno speed to " + std::to_string(m_dynoSpeed));
         fineControlInUse = true;
     }
 
@@ -815,84 +804,83 @@ void EngineSimApplication::processEngineInput() {
     }
 
     if (m_engine.ProcessKeyDown(ysKey::Code::D)) {
-        m_simulator->m_dyno.m_enabled = !m_simulator->m_dyno.m_enabled;
+        m_simulator.m_dyno.m_enabled = !m_simulator.m_dyno.m_enabled;
 
-        const std::string msg = m_simulator->m_dyno.m_enabled
+        const std::string msg = m_simulator.m_dyno.m_enabled
             ? "DYNOMOMETER ENABLED"
             : "DYNOMOMETER DISABLED";
         m_infoCluster->setLogMessage(msg);
     }
 
     if (m_engine.ProcessKeyDown(ysKey::Code::H)) {
-        m_simulator->m_dyno.m_hold = !m_simulator->m_dyno.m_hold;
+        m_simulator.m_dyno.m_hold = !m_simulator.m_dyno.m_hold;
 
-        const std::string msg = m_simulator->m_dyno.m_hold
-            ? m_simulator->m_dyno.m_enabled ? "HOLD ENABLED" : "HOLD ON STANDBY [ENABLE DYNO. FOR HOLD]"
+        const std::string msg = m_simulator.m_dyno.m_hold
+            ? m_simulator.m_dyno.m_enabled ? "HOLD ENABLED" : "HOLD ON STANDBY [ENABLE DYNO. FOR HOLD]"
             : "HOLD DISABLED";
         m_infoCluster->setLogMessage(msg);
     }
 
-    if (m_simulator->m_dyno.m_enabled) {
-        if (!m_simulator->m_dyno.m_hold) {
-            if (m_simulator->getFilteredDynoTorque() > units::torque(1.0, units::ft_lb)) {
+    if (m_simulator.m_dyno.m_enabled) {
+        if (!m_simulator.m_dyno.m_hold) {
+            if (m_simulator.getFilteredDynoTorque() > units::torque(1.0, units::ft_lb)) {
                 m_dynoSpeed += units::rpm(500) * dt;
             }
             else {
                 m_dynoSpeed *= (1 / (1 + dt));
             }
 
-            if (m_dynoSpeed > m_iceEngine->getRedline()) {
-                m_simulator->m_dyno.m_enabled = false;
+            if ((m_dynoSpeed + units::rpm(1000)) > m_iceEngine->getRedline()) {
+                m_simulator.m_dyno.m_enabled = false;
                 m_dynoSpeed = units::rpm(0);
             }
         }
     }
     else {
-        if (!m_simulator->m_dyno.m_hold) {
+        if (!m_simulator.m_dyno.m_hold) {
             m_dynoSpeed = units::rpm(0);
         }
     }
 
-    m_dynoSpeed = clamp(m_dynoSpeed, m_iceEngine->getDynoMinSpeed(), m_iceEngine->getDynoMaxSpeed());
-    m_simulator->m_dyno.m_rotationSpeed = m_dynoSpeed;
+    m_simulator.m_dyno.m_rotationSpeed = m_dynoSpeed + units::rpm(1000);
 
-    const bool prevStarterEnabled = m_simulator->m_starterMotor.m_enabled;
+    const bool prevStarterEnabled = m_simulator.m_starterMotor.m_enabled;
     if (m_engine.IsKeyDown(ysKey::Code::S)) {
-        m_simulator->m_starterMotor.m_enabled = true;
+        m_simulator.m_starterMotor.m_enabled = true;
     }
     else {
-        m_simulator->m_starterMotor.m_enabled = false;
+        m_simulator.m_starterMotor.m_enabled = false;
     }
 
-    if (prevStarterEnabled != m_simulator->m_starterMotor.m_enabled) {
-        const std::string msg = m_simulator->m_starterMotor.m_enabled
+    if (prevStarterEnabled != m_simulator.m_starterMotor.m_enabled) {
+        const std::string msg = m_simulator.m_starterMotor.m_enabled
             ? "STARTER ENABLED"
             : "STARTER DISABLED";
         m_infoCluster->setLogMessage(msg);
     }
 
     if (m_engine.ProcessKeyDown(ysKey::Code::A)) {
-        m_simulator->getEngine()->getIgnitionModule()->m_enabled =
-            !m_simulator->getEngine()->getIgnitionModule()->m_enabled;
+        m_simulator.getEngine()->getIgnitionModule()->m_enabled =
+            !m_simulator.getEngine()->getIgnitionModule()->m_enabled;
 
-        const std::string msg = m_simulator->getEngine()->getIgnitionModule()->m_enabled
+        const std::string msg = m_simulator.getEngine()->getIgnitionModule()->m_enabled
             ? "IGNITION ENABLED"
             : "IGNITION DISABLED";
         m_infoCluster->setLogMessage(msg);
     }
 
     if (m_engine.ProcessKeyDown(ysKey::Code::Up)) {
-        m_simulator->getTransmission()->changeGear(m_simulator->getTransmission()->getGear() + 1);
+        m_simulator.getTransmission()->changeGear(m_simulator.getTransmission()->getGear() + 1);
 
         m_infoCluster->setLogMessage(
-            "UPSHIFTED TO " + std::to_string(m_simulator->getTransmission()->getGear() + 1));
+            "UPSHIFTED TO " + std::to_string(m_simulator.getTransmission()->getGear() + 1));
     }
     else if (m_engine.ProcessKeyDown(ysKey::Code::Down)) {
-        m_simulator->getTransmission()->changeGear(m_simulator->getTransmission()->getGear() - 1);
+        m_simulator.getTransmission()->changeGear(m_simulator.getTransmission()->getGear() - 1);
 
-        if (m_simulator->getTransmission()->getGear() != -1) {
+        if (m_simulator.getTransmission()->getGear() != -1) {
             m_infoCluster->setLogMessage(
-                "DOWNSHIFTED TO " + std::to_string(m_simulator->getTransmission()->getGear() + 1));
+                "DOWNSHIFTED TO " + std::to_string(m_simulator.getTransmission()->getGear() + 1));
         }
         else {
             m_infoCluster->setLogMessage("SHIFTED TO NEUTRAL");
@@ -922,7 +910,7 @@ void EngineSimApplication::processEngineInput() {
 
     const double clutch_s = dt / (dt + clutchRC);
     m_clutchPressure = m_clutchPressure * (1 - clutch_s) + m_targetClutchPressure * clutch_s;
-    m_simulator->getTransmission()->setClutchPressure(m_clutchPressure);
+    m_simulator.getTransmission()->setClutchPressure(m_clutchPressure);
 }
 
 void EngineSimApplication::renderScene() {
@@ -940,7 +928,6 @@ void EngineSimApplication::renderScene() {
     m_shaders.m_cameraPosition = ysMath::LoadVector(cameraPos.x, cameraPos.y);
 
     m_shaders.CalculateUiCamera(screenWidth, screenHeight);
-
     if (m_screen == 0) {
         Bounds windowBounds((float)screenWidth, (float)screenHeight, { 0, (float)screenHeight });
         Grid grid;
@@ -1029,8 +1016,7 @@ void EngineSimApplication::renderScene() {
         m_displayHeight / m_engineView->m_zoom,
         m_engineView->m_bounds,
         m_screenWidth,
-        m_screenHeight,
-        m_displayAngle);
+        m_screenHeight);
 
     m_geometryGenerator.reset();
 
@@ -1062,15 +1048,15 @@ void EngineSimApplication::refreshUserInterface() {
     m_infoCluster = m_uiManager.getRoot()->addElement<InfoCluster>();
 
     m_infoCluster->setEngine(m_iceEngine);
-    m_rightGaugeCluster->m_simulator = m_simulator;
+    m_rightGaugeCluster->m_simulator = &m_simulator;
     m_rightGaugeCluster->setEngine(m_iceEngine);
-    m_oscCluster->setSimulator(m_simulator);
+    m_oscCluster->setSimulator(&m_simulator);
     if (m_iceEngine != nullptr) {
         m_oscCluster->setDynoMaxRange(units::toRpm(m_iceEngine->getRedline()));
     }
-    m_performanceCluster->setSimulator(m_simulator);
-    m_loadSimulationCluster->setSimulator(m_simulator);
-    m_mixerCluster->setSimulator(m_simulator);
+    m_performanceCluster->setSimulator(&m_simulator);
+    m_loadSimulationCluster->setSimulator(&m_simulator);
+    m_mixerCluster->setSimulator(&m_simulator);
 }
 
 void EngineSimApplication::startRecording() {

@@ -1,6 +1,6 @@
 #include "../include/standard_allocator.h"
 
-#include <malloc.h>
+#include <stdlib.h>
 
 piranha::StandardAllocator *piranha::StandardAllocator::s_global = nullptr;
 

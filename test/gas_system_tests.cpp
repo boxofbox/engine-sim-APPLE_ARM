@@ -105,16 +105,20 @@ TEST(GasSystemTests, PressureEquilibriumMaxFlow) {
     );
 
     const double maxFlowIn = system1.pressureEquilibriumMaxFlow(&system2);
-
+    //printf("max flow in: %f\n", maxFlowIn);
+    //printf("Sys 1 pressure: %f, Sys 2 pressure: %f\n", system1.pressure(), system2.pressure());
+    //printf("sys 2 n: %f, KE: %f\n", system2.n(), system2.kineticEnergy());
     system1.loseN(maxFlowIn, system1.kineticEnergyPerMol());
+    //printf("sys 1 n: %f, KE: %f\n", system1.n(), system1.kineticEnergy());
     system2.gainN(maxFlowIn, system1.kineticEnergyPerMol(), system1.mix());
 
+    //printf("Sys 1 pressure: %f, Sys 2 pressure: %f\n", system1.pressure(), system2.pressure());
     EXPECT_NEAR(system1.pressure(), system2.pressure(), 1E-6);
 
     system1.changePressure(units::pressure(100.0, units::atm));
 
     const double maxFlowOut = system1.pressureEquilibriumMaxFlow(&system2);
-
+    double oldMoles = system1.kineticEnergyPerMol();
     system1.loseN(maxFlowIn, system1.kineticEnergyPerMol());
     system2.gainN(maxFlowIn, system1.kineticEnergyPerMol(), system1.mix());
 
@@ -132,11 +136,13 @@ TEST(GasSystemTests, PressureEquilibriumMaxFlowInfinite) {
     constexpr double P_env = units::pressure(2.0, units::atm);
     constexpr double T_env = units::celcius(25.0);
 
+    printf("sys 1 n: %f, KE: %f\n", system1.n(), system1.kineticEnergy());
+
     const double maxFlow = system1.pressureEquilibriumMaxFlow(P_env, T_env);
     const double E_k_per_mol = GasSystem::kineticEnergyPerMol(T_env, system1.degreesOfFreedom());
-
+   
     system1.gainN(maxFlow, E_k_per_mol);
-
+    printf("%f, pressure: %f\n", maxFlow, system1.pressure());
     EXPECT_NEAR(system1.pressure(), P_env, 1E-6);
 }
 
@@ -147,6 +153,7 @@ TEST(GasSystemTests, PressureEquilibriumMaxFlowInfiniteOverpressure) {
         units::volume(1.0, units::m3),
         units::celcius(2500.0)
     );
+
 
     constexpr double P_env = units::pressure(2.0, units::atm);
     constexpr double T_env = units::celcius(25.0);

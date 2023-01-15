@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <cassert>
+#include <sstream>
 
 void GasSystem::setGeometry(double width, double height, double dx, double dy) {
     m_width = width;
@@ -229,6 +230,7 @@ double GasSystem::flowRate(
 }
 
 double GasSystem::loseN(double dn, double E_k_per_mol) {
+     
     m_state.E_k -= E_k_per_mol * dn;
     m_state.n_mol -= dn;
 
@@ -278,6 +280,10 @@ void GasSystem::dissipateExcessVelocity() {
     m_state.E_k += 0.5 * mass() * (v_squared - c_squared);
 
     if (m_state.E_k < 0) m_state.E_k = 0;
+
+    if (std::isnan(m_state.momentum[0]) || std::isnan(m_state.E_k)) {
+        int a = 0;
+    }
 }
 
 void GasSystem::updateVelocity(double dt, double beta) {
@@ -398,6 +404,7 @@ double GasSystem::flow(const FlowParameters &params) {
 
     const double maxFlow = source->pressureEquilibriumMaxFlow(sink);
     flow = clamp(flow, 0.0, 0.9 * source->n());
+    //flow = clamp(flow, 0.0, maxFlow);
 
     const double fraction = flow / source->n();
     const double fractionVolume = fraction * source->volume();
@@ -434,9 +441,7 @@ double GasSystem::flow(const FlowParameters &params) {
     }
     
     const double sourceMass = source->mass();
-    const double invSourceMass = 1 / sourceMass;
     const double sinkMass = sink->mass();
-    const double invSinkMass = 1 / sinkMass;
 
     const double c_source = source->c();
     const double c_sink = sink->c();
@@ -476,6 +481,8 @@ double GasSystem::flow(const FlowParameters &params) {
     }
 
     if (sourceMass != 0) {
+
+        const double invSourceMass = 1 / sourceMass;
         // Energy conservation
         const double sourceVelocity0_x = sourceInitialMomentum_x * invSourceMass;
         const double sourceVelocity0_y = sourceInitialMomentum_y * invSourceMass;
@@ -493,6 +500,8 @@ double GasSystem::flow(const FlowParameters &params) {
     }
 
     if (sinkMass > 0) {
+
+        const double invSinkMass = 1 / sinkMass;
         const double sinkVelocity0_x = sinkInitialMomentum_x * invSinkMass;
         const double sinkVelocity0_y = sinkInitialMomentum_y * invSinkMass;
 
@@ -566,17 +575,16 @@ double GasSystem::pressureEquilibriumMaxFlow(const GasSystem *b) const {
     // Q_b = 1 / (0.5 * b->degreesOfFreedom * b->volume())
     // pressure_a = Q_a * (E_a + dn * D_b)
     // pressure_b = Q_b * (E_b - dn * D_b)
-
     if (pressure() > b->pressure()) {
         const double maxFlow =
-                (b->volume() * kineticEnergy() - volume() * b->kineticEnergy()) /
-                (b->volume() * kineticEnergyPerMol() + volume() * kineticEnergyPerMol());
+                ((b->volume() * kineticEnergy()) - (volume() * b->kineticEnergy())) /
+                ((b->volume() * kineticEnergyPerMol()) + (volume() * kineticEnergyPerMol()));
         return std::fmax(0.0, std::fmin(maxFlow, n()));
     }
     else {
         const double maxFlow =
-                (b->volume() * kineticEnergy() - volume() * b->kineticEnergy()) /
-                (b->volume() * b->kineticEnergyPerMol() + volume() * b->kineticEnergyPerMol());
+                ((b->volume() * kineticEnergy()) - (volume() * b->kineticEnergy())) /
+                ((b->volume() * b->kineticEnergyPerMol()) + (volume() * b->kineticEnergyPerMol()));
         return std::fmin(0.0, std::fmax(maxFlow, -b->n()));
     }
 }
@@ -587,6 +595,6 @@ double GasSystem::pressureEquilibriumMaxFlow(double P_env, double T_env) const {
     }
     else {
         const double E_k_per_mol_env = 0.5 * T_env * constants::R * m_degreesOfFreedom;
-        return -(P_env * (0.5 * m_degreesOfFreedom * volume()) - kineticEnergy()) / E_k_per_mol_env;
+        return (P_env * (0.5 * m_degreesOfFreedom * volume()) - kineticEnergy()) / E_k_per_mol_env;
     }
 }

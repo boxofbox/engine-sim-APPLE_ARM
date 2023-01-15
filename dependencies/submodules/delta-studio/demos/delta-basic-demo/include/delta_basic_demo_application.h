@@ -45,6 +45,13 @@ namespace delta_demo {
         ysAnimationChannel *m_channel2;
 
         float m_blinkTimer;
+
+        ysGPUBuffer* m_mainVertexBuffer = nullptr;
+        ysGPUBuffer* m_mainIndexBuffer = nullptr;
+        ysGPUBuffer* m_mainVertexBuffer2 = nullptr;
+        ysGPUBuffer* m_mainIndexBuffer2 = nullptr;
+
+        float m_pos = 0.1;
     };
 
 } /* namesapce dbasic_demo */

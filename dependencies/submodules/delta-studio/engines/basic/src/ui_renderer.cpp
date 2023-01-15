@@ -30,9 +30,7 @@ ysError dbasic::UiRenderer::Initialize(int bufferSize) {
 
 ysError dbasic::UiRenderer::UpdateDisplay() {
     YDS_ERROR_DECLARE("UpdateDisplay");
-
     if (m_vertexOffset == 0) return YDS_ERROR_RETURN(ysError::None);
-
     m_shaders.SetScreenDimensions(
         (float)m_engine->GetScreenWidth(),
         (float)m_engine->GetScreenHeight());
@@ -48,7 +46,6 @@ ysError dbasic::UiRenderer::UpdateDisplay() {
         (char *)m_indexBuffer,
         sizeof(unsigned short) * m_indexOffset,
         0);
-
     m_shaders.SetTexture(m_font->GetTexture());
     m_engine->DrawGeneric(
         m_shaders.GetFlags(),
@@ -59,6 +56,7 @@ ysError dbasic::UiRenderer::UpdateDisplay() {
         0,
         m_indexOffset / 3,
         false);
+
 
     return YDS_ERROR_RETURN(ysError::None);
 }
@@ -76,6 +74,7 @@ ysError dbasic::UiRenderer::Destroy() {
 }
 
 dbasic::ConsoleVertex *dbasic::UiRenderer::AllocateQuads(int n) {
+    //printf("allocate quads: %d\n", n);
     for (int i = 0; i < n; ++i) {
         m_indexBuffer[m_indexOffset + i * 6 + 0] = 2 + m_vertexOffset + i * 4;
         m_indexBuffer[m_indexOffset + i * 6 + 1] = 1 + m_vertexOffset + i * 4;
@@ -127,7 +126,6 @@ ysError dbasic::UiRenderer::InitializeGeometry(int bufferSize) {
     m_vertexBuffer = new ConsoleVertex[m_bufferSize];
 
     ysDevice *device = m_engine->GetDevice();
-
     YDS_NESTED_ERROR_CALL(
         device->CreateVertexBuffer(
             &m_mainVertexBuffer, 

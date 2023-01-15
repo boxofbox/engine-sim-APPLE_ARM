@@ -43,7 +43,10 @@ void UiElement::update(float dt) {
 
 void UiElement::render() {
     for (UiElement *child : m_children) {
-        if (child->isVisible()) child->render();
+        if (child->isVisible())
+        {
+            child->render();
+        }
     }
 }
 
@@ -154,8 +157,8 @@ Point UiElement::getRenderPoint(const Point &p) const {
     const Point offset(
             -(float)m_app->getScreenWidth() / 2,
             -(float)m_app->getScreenHeight() / 2);
-    const Point posPixels = localToWorld(p) + offset;
 
+    const Point posPixels = localToWorld(p) + offset;
     return pixelsToUnits(posPixels);
 }
 
@@ -202,7 +205,6 @@ void UiElement::drawFrame(
         bool fill)
 {
     GeometryGenerator *generator = m_app->getGeometryGenerator();
-
     const Bounds worldBounds = getRenderBounds(bounds);
     const Point position = worldBounds.getPosition(Bounds::center);
 
@@ -222,6 +224,7 @@ void UiElement::drawFrame(
     GeometryGenerator::GeometryIndices frame, body;
 
     resetShader();
+    fill = false;
     if (fill) {
         generator->startShape();
         generator->generateLine2d(lineParams);

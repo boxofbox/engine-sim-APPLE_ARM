@@ -1,4 +1,4 @@
-#version 420
+#version 410
 
 layout(location=0) in vec4 in_Position;
 layout(location=1) in vec2 in_Tex;
@@ -8,7 +8,7 @@ out vec4 ex_Pos;
 out vec2 ex_Tex;
 out vec3 ex_Normal;
 
-layout (binding = 0) uniform ScreenVariables {
+uniform ScreenVariables {
 	mat4 CameraView;
 	mat4 Projection;
 	vec4 CameraEye;
@@ -18,7 +18,7 @@ layout (binding = 0) uniform ScreenVariables {
 	float FogFar;
 };
 
-layout (binding = 1) uniform ObjectVariables {
+uniform ObjectVariables {
 	mat4 Transform;
 	vec2 TexOffset;
 	vec2 TexScale;
@@ -37,7 +37,7 @@ layout (binding = 1) uniform ObjectVariables {
 	int Lit;
 };
 
-layout (binding = 2) uniform SkinningVariables {
+uniform SkinningVariables {
 	mat4 BoneTransform[256];
 };
 

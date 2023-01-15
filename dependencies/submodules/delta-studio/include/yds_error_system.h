@@ -66,6 +66,7 @@ protected:
     if (code != ysError::None)                          \
     {                                                   \
         ysErrorSystem::GetInstance()->StackDescend();   \
+        printf("yds error %d\n", code);                 \
         return code;                                    \
     }                                                   \
                                                         \

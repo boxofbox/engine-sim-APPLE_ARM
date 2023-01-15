@@ -11,7 +11,6 @@ public:
     ysShaderProgram();
     ysShaderProgram(DeviceAPI API);
     virtual ~ysShaderProgram();
-
     const ysShader *GetShader(ysShader::ShaderType type) const { return m_shaderSlots[(int)type]; }
 
 protected:

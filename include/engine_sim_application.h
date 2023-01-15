@@ -84,7 +84,7 @@ class EngineSimApplication {
         int getScreenWidth() const { return m_screenWidth; }
         int getScreenHeight() const { return m_screenHeight; }
 
-        Simulator *getSimulator() { return m_simulator; }
+        Simulator *getSimulator() { return &m_simulator; }
         InfoCluster *getInfoCluster() { return m_infoCluster; }
         ApplicationSettings* getAppSettings() { return &m_applicationSettings; }
 
@@ -108,7 +108,6 @@ class EngineSimApplication {
         virtual void process(float dt);
         virtual void render();
 
-        float m_displayAngle;
         float m_displayHeight;
         int m_gameWindowHeight;
         int m_screenWidth;
@@ -134,7 +133,7 @@ class EngineSimApplication {
         Engine *m_iceEngine;
         Vehicle *m_vehicle;
         Transmission *m_transmission;
-        Simulator *m_simulator;
+        Simulator m_simulator;
         double m_dynoSpeed;
         double m_torque;
 

@@ -15,9 +15,8 @@ void delta_demo::EmptyWindowDemo::Initialize(void *instance, ysContextObject::De
     ysError result;
 
     result =
-        ysWindowSystem::CreateWindowSystem(&m_windowSystem, ysWindowSystemObject::Platform::Windows);
+        ysWindowSystem::CreateWindowSystem(&m_windowSystem, ysWindowSystemObject::Platform::Sdl);
     if (result != ysError::None) return;
-
     m_windowSystem->ConnectInstance(instance);
 
     result = m_windowSystem->NewWindow(&m_window);
@@ -38,17 +37,24 @@ void delta_demo::EmptyWindowDemo::Initialize(void *instance, ysContextObject::De
 
     result = m_device->InitializeDevice();
     if (result != ysError::None) return;
-
     result = m_device->CreateRenderingContext(&m_context, m_window);
     if (result != ysError::None) return;
-
+    
     result = m_device->CreateOnScreenRenderTarget(&m_renderTarget, m_context, false);
     if (result != ysError::None) return;
-
+    
     m_device->SetRenderTarget(m_renderTarget);
+
+    ysInputSystem *m_inputSystem;
+    m_inputSystem = nullptr;
+
+    ysInputSystem::CreateInputSystem(&m_inputSystem, ysWindowSystemObject::Platform::Sdl);
+    m_windowSystem->AssignInputSystem(m_inputSystem);
+    m_inputSystem->Initialize();
 }
 
 void delta_demo::EmptyWindowDemo::Run() {
+    int count = 0;
     while (m_window->IsOpen()) {
         m_windowSystem->ProcessMessages();
 
@@ -60,10 +66,16 @@ void delta_demo::EmptyWindowDemo::Run() {
         m_device->ClearBuffers(clearColor);
 
         m_device->Present();
+        if (count > 500)
+        {
+            break;
+        }
+        count++;
     }
 }
 
 void delta_demo::EmptyWindowDemo::Destroy() {
+    printf("destroy\n");
     m_device->DestroyRenderingContext(m_context);
     m_device->DestroyRenderTarget(m_renderTarget);
     m_device->DestroyDevice();
