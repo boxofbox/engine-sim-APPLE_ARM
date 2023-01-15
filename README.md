@@ -1,6 +1,41 @@
 # Engine Simulator
 ---
-The work to get this to run on Metal wouldn't have happened without these forks from phire and bobsayshilol
+
+## Notes about this particular fork
+
+This version is intended for build on M1 Mac (tested on OS Ventura 13) with arm64 homebrew (in /opt/homebrew).
+
+### Step 1 - Clone the repository
+```git clone https://github.com/boxofbox/engine-sim-m1```
+
+### Step 2 - Install Dependencies
+
+```
+brew install cmake
+brew install boost
+brew install bison
+brew install boost
+brew install sse2neon
+brew install sdl2
+brew install sdl2_image
+brew install sdl_sound
+brew install flex
+```
+
+### Step 3 - Build and Run
+From the root directory of the project, run the following commands:
+
+```
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake --build . --target engine-sim-app
+```
+
+If these steps are successful, you should be able to run the program from the build directory with ```./engine-sim-app```
+
+---
+The work to get this to run on Metal wouldn't have happened without these forks from phire and bobsayshilol and help from jakelst on the engine-sim discord!
 
 https://github.com/phire/delta-studio/tree/clang_linux
 
@@ -62,34 +97,7 @@ The RPM hold feature will hold the engine at a specific RPM and also measure the
 
 I wrote this to demo in a [YouTube video](https://youtu.be/RKT-sKtR970), not as a real product. If you would like it to become a usable product please reach out to me or join my Discord (link can be found in the description of the aforementioned YouTube video). I use this codebase for my own purposes and so it might change frequently and without warning.
 
-## How do I build it? (Ignore this section if you're not a developer!)
-**Note: this project currently only builds on Windows!**
 
-### Step 1 - Clone the repository
-```git clone --recurse-submodules https://github.com/ange-yaghi/engine-sim```
-
-### Step 2 - Install CMake
-Install the latest version of CMake [here](https://cmake.org/) if it's not already installed.
-
-### Step 3 - Install Dependencies
-You will need to install the following dependencies and CMake will need to be able to locate them (ie. they need to be listed on your PATH):
-
-    1. SDL2
-    2. SDL2_image
-    3. Boost (make sure to build the optional dependencies)
-    4. Flex and Bison
-
-### Step 4 - Build and Run
-From the root directory of the project, run the following commands:
-
-```
-mkdir build
-cd build
-cmake ..
-cmake --build .
-```
-
-If these steps are successful, a Visual Studio solution will be generated in ```build```. You can open this project with Visual Studio and then run the ```engine-sim-app``` project. If you encounter an error telling you that you're missing DLLs, you will have to copy those DLLs to your EXE's directory.
 
 ## Patreon Supporters
 
