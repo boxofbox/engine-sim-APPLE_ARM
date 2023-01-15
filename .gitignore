@@ -10,3 +10,5 @@ compile_commands.json
 
 # Blender temporary files
 *.blend1
+
+.DS_Store
