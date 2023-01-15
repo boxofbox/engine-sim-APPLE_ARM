@@ -1,0 +1,29 @@
+private node AddNode {
+    input p1;
+    input p2;
+    alias output out: p1 + p2;
+}
+
+private node AddMulNode {
+    input p1;
+    input p2;
+    input p3;
+    alias output out: AddNode(p1, p2) * p3;
+}
+
+private node BrokenNodeDef {
+    // Broken attribute, the rest should still work
+    input a###: 5; // UnidentifiedToken
+    input b;
+    alias output out: a - b;
+}
+
+// This node should still be read even though
+// the node definition before is messed up
+BrokenNodeDef brokenNodeInstance(
+    fake_input_1: 5, // PortNotFound
+    fake_input_2: 6, // PortNotFound
+    b: 15, // Good
+
+    a: "Works"
+)

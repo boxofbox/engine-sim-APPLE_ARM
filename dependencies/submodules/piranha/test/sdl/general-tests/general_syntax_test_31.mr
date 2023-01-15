@@ -1,0 +1,11 @@
+public node int_channel => __piranha__int {}
+
+public node literal_int => __piranha__literal_int {
+    alias output __out [int_channel];
+}
+
+auto private node test {
+    input value: 5;
+    output value_out: value;
+    output out: test.value_out;
+}

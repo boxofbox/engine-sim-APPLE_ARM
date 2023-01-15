@@ -1,0 +1,12 @@
+private node operator+ => __builtin_add {
+    input __in0;
+    input __in1;
+    alias output __out0 [Placeholder];
+}
+
+operator+ test_node (
+    2,
+    2
+)
+
+private node Placeholder {}

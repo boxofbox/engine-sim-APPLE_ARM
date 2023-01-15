@@ -1,0 +1,59 @@
+private node test {
+    input x;
+    input y;
+
+    output a: x;
+    output b: y;
+}
+
+private node empty {}
+
+private node half_good {
+    output b: 5;
+}
+
+private node even_harder {
+    input v;
+    output _v: v;
+}
+
+private node straight_through {
+    input x;
+    output a: x;
+}
+
+private node confusion {
+    input some_input;
+    output test: test(some_input.a, some_input.b); // Undefined member x3
+
+    even_harder internal_node(
+        empty()
+    )
+}
+
+private node top_confusion {
+    input some_input;
+    input other;
+    output __out: 
+        confusion(
+            straight_through(some_input)
+        );
+    output __out2: confusion(other);
+}
+
+top_confusion test(5, 6)
+
+public node int_channel => __piranha__int {}
+public node literal_int => __piranha__literal_int {
+    alias output __out [int_channel];
+}
+
+public node float_channel => __piranha__float {}
+public node literal_float => __piranha__literal_float {
+    alias output __out [float_channel];
+}
+
+public node string_channel => __piranha__string {}
+public node literal_string => __piranha__literal_string {
+    alias output __out [string_channel];
+}

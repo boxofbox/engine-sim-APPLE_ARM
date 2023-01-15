@@ -1,0 +1,7 @@
+private import "operators.mr" as operators
+
+node test {
+    alias output __out: 5.0 + 5.0;
+}
+
+test()

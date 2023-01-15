@@ -1,0 +1,54 @@
+public inline node int_channel =>      __piranha__int      { /* void */ }
+public inline node float_channel =>    __piranha__float    { /* void */ }
+public inline node string_channel =>   __piranha__string   { /* void */ }
+public inline node bool_channel =>     __piranha__bool     { /* void */ }
+public inline node vector_channel =>   __piranha__vector { 
+    output x [float];
+    output y [float];
+    output z [float];
+    output w [float];
+}
+
+public inline node int {
+    input __in              [int_channel];
+    alias output __out      [int_channel]: __in;
+}
+
+public inline node float {
+    input __in              [float_channel];
+    alias output __out      [float_channel]: __in;
+}
+
+public inline node string {
+    input __in              [string_channel];
+    alias output __out      [string_channel]: __in;
+}
+
+public inline node bool {
+    input __in              [bool_channel];
+    alias output __out      [bool_channel]: __in;
+}
+
+public inline node vector => __piranha__vector_constructor {
+    input __in0             [float];
+    input __in1             [float];
+    input __in2             [float];
+    input __in3             [float];
+
+    alias output __out      [vector_channel];
+}
+
+public inline node string_to_float => __piranha__string_to_float {
+    input __in              [string];
+    alias output __out      [float];
+}
+
+public inline node float_to_string => __piranha__float_to_string {
+    input __in              [float];
+    alias output __out      [string];
+}
+
+public inline node int_to_float => __piranha__int_to_float {
+    input __in              [int];
+    alias output __out      [float];
+}

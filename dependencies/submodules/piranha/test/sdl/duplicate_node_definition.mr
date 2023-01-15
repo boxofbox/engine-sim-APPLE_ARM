@@ -1,0 +1,20 @@
+private node the_same_node {    // DuplicateNodeDefinition
+    input A;
+    output B: A;
+}
+
+private node the_same_node {    // DuplicateNodeDefinition
+    input C;                    // SymbolUsedMultipleTimes
+    input C;                    // SymbolUsedMultipleTimes
+    input D;                    // SymbolUsedMultipleTimes
+    output D: C;                // SymbolUsedMultipleTimes
+    output D;                   // SymbolUsedMultipleTimes, OutputWithNoDefinition
+    output C;                   // SymbolUsedMultipleTimes, OutputWithNoDefinition
+
+    interior_node C()           // SymbolUsedMultipleTimes
+}
+
+private node interior_node {
+    input A: 0;
+    output B: A;
+}

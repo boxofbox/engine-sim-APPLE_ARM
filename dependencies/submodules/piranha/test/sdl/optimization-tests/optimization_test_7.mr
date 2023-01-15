@@ -1,0 +1,6 @@
+private import "../../../demos/piranha/standard-library/standard_library.mr" as std
+
+auto node test {
+    output constant: 1;
+    output d: constant + 2;
+}
