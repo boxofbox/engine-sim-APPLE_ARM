@@ -34,6 +34,8 @@ cmake --build . --target engine-sim-app
 
 If these steps are successful, you should be able to run the program from the build directory with ```./engine-sim-app```
 
+NOTE: the application currently does not open properly with double-click. You must run it from the command line in the build directory
+
 ---
 The work to get this to run on Metal wouldn't have happened without these forks from phire and bobsayshilol and help from jakelst on the engine-sim discord!
 
