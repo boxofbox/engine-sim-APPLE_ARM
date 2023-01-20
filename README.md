@@ -17,7 +17,6 @@ brew install bison
 brew install sse2neon
 brew install sdl2
 brew install sdl2_image
-brew install sdl_sound
 brew install flex
 ```
 
