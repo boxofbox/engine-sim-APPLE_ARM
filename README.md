@@ -14,7 +14,6 @@ This version is intended for build on M1 Mac (tested on OS Ventura 13) with arm6
 brew install cmake
 brew install boost
 brew install bison
-brew install boost
 brew install sse2neon
 brew install sdl2
 brew install sdl2_image
